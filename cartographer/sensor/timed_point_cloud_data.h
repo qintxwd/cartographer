@@ -30,6 +30,7 @@ struct TimedPointCloudData {
   TimedPointCloud ranges;
   // 'intensities' has to be same size as 'ranges', or empty.
   std::vector<float> intensities;
+  double closure_weight_factor = 1.0;
 };
 
 struct TimedPointCloudOriginData {
@@ -41,6 +42,7 @@ struct TimedPointCloudOriginData {
   common::Time time;
   std::vector<Eigen::Vector3f> origins;
   std::vector<RangeMeasurement> ranges;
+  double closure_weight_factor = 1.0;
 };
 
 // Converts 'timed_point_cloud_data' to a proto::TimedPointCloudData.

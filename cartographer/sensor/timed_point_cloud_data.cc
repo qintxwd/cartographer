@@ -34,6 +34,7 @@ proto::TimedPointCloudData ToProto(
   for (const float intensity : timed_point_cloud_data.intensities) {
     proto.add_intensities(intensity);
   }
+  proto.set_closure_weight_factor(timed_point_cloud_data.closure_weight_factor);
   return proto;
 }
 
@@ -57,7 +58,8 @@ TimedPointCloudData FromProto(const proto::TimedPointCloudData& proto) {
                              transform::ToEigen(proto.origin()),
                              timed_point_cloud,
                              std::vector<float>(proto.intensities().begin(),
-                                                proto.intensities().end())};
+                                                proto.intensities().end()),
+                              proto.closure_weight_factor()};
 }
 
 }  // namespace sensor

@@ -58,7 +58,15 @@ sensor::TimedPointCloudOriginData RangeDataCollator::AddRangeData(
 }
 
 sensor::TimedPointCloudOriginData RangeDataCollator::CropAndMerge() {
-  sensor::TimedPointCloudOriginData result{current_end_, {}, {}};
+  sensor::TimedPointCloudOriginData result{current_end_, {}, {}, 1.0};
+  if(!id_to_pending_data_.empty()){
+    result.closure_weight_factor = std::accumulate(
+        id_to_pending_data_.begin(), id_to_pending_data_.end(), 0.0,
+        [](double sum, const std::pair<std::string, sensor::TimedPointCloudData>& pair) {
+          return sum + pair.second.closure_weight_factor;
+        }) / id_to_pending_data_.size();
+  }
+
   bool warned_for_dropped_points = false;
   for (auto it = id_to_pending_data_.begin();
        it != id_to_pending_data_.end();) {
@@ -116,7 +124,8 @@ sensor::TimedPointCloudOriginData RangeDataCollator::CropAndMerge() {
       data = sensor::TimedPointCloudData{
           data.time, data.origin,
           sensor::TimedPointCloud(overlap_end, ranges.end()),
-          std::vector<float>(intensities_overlap_end, intensities.end())};
+          std::vector<float>(intensities_overlap_end, intensities.end()),
+          data.closure_weight_factor};
       ++it;
     }
   }

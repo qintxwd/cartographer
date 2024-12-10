@@ -59,7 +59,8 @@ LocalTrajectoryBuilder2D::TransformToGravityAlignedFrameAndFilter(
   return sensor::RangeData{
       cropped.origin,
       sensor::VoxelFilter(cropped.returns, options_.voxel_filter_size()),
-      sensor::VoxelFilter(cropped.misses, options_.voxel_filter_size())};
+      sensor::VoxelFilter(cropped.misses, options_.voxel_filter_size()),
+      cropped.closure_weight_factor};
 }
 
 std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
@@ -157,7 +158,7 @@ LocalTrajectoryBuilder2D::AddRangeData(
   if (num_accumulated_ == 0) {
     // 'accumulated_range_data_.origin' is uninitialized until the last
     // accumulation.
-    accumulated_range_data_ = sensor::RangeData{{}, {}, {}};
+    accumulated_range_data_ = sensor::RangeData{{}, {}, {}, 0.0};
   }
 
   // Drop any returns below the minimum range and convert returns beyond the
@@ -182,10 +183,13 @@ LocalTrajectoryBuilder2D::AddRangeData(
         accumulated_range_data_.misses.push_back(hit_in_local);
       }
     }
-  }
+  }  
+  accumulated_range_data_.closure_weight_factor +=
+      synchronized_data.closure_weight_factor;
   ++num_accumulated_;
 
   if (num_accumulated_ >= options_.num_accumulated_range_data()) {
+    accumulated_range_data_.closure_weight_factor /= num_accumulated_;
     const common::Time current_sensor_time = synchronized_data.time;
     absl::optional<common::Duration> sensor_duration;
     if (last_sensor_time_.has_value()) {
@@ -295,7 +299,9 @@ LocalTrajectoryBuilder2D::InsertIntoSubmap(
           {},  // 'high_resolution_point_cloud' is only used in 3D.
           {},  // 'low_resolution_point_cloud' is only used in 3D.
           {},  // 'rotational_scan_matcher_histogram' is only used in 3D.
-          pose_estimate}),
+          pose_estimate,
+          range_data_in_local.closure_weight_factor
+          }),
       std::move(insertion_submaps)});
 }
 

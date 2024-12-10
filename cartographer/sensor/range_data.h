@@ -33,6 +33,7 @@ struct RangeData {
   Eigen::Vector3f origin;
   PointCloud returns;
   PointCloud misses;
+  double closure_weight_factor = 1.0;
 };
 
 RangeData TransformRangeData(const RangeData& range_data,

@@ -60,6 +60,8 @@ struct TrajectoryNode {
 
     // The node pose in the local SLAM frame.
     transform::Rigid3d local_pose;
+
+    double closure_weight_factor = 1.;
   };
 
   common::Time time() const { return constant_data->time; }

@@ -28,6 +28,7 @@ RangeData TransformRangeData(const RangeData& range_data,
       transform * range_data.origin,
       TransformPointCloud(range_data.returns, transform),
       TransformPointCloud(range_data.misses, transform),
+      range_data.closure_weight_factor
   };
 }
 
@@ -35,7 +36,7 @@ RangeData CropRangeData(const RangeData& range_data, const float min_z,
                         const float max_z) {
   return RangeData{range_data.origin,
                    CropPointCloud(range_data.returns, min_z, max_z),
-                   CropPointCloud(range_data.misses, min_z, max_z)};
+                   CropPointCloud(range_data.misses, min_z, max_z), range_data.closure_weight_factor};
 }
 
 proto::RangeData ToProto(const RangeData& range_data) {
@@ -49,6 +50,7 @@ proto::RangeData ToProto(const RangeData& range_data) {
   for (const RangefinderPoint& point : range_data.misses) {
     *proto.add_misses() = ToProto(point);
   }
+  proto.set_closure_weight_factor(range_data.closure_weight_factor);
   return proto;
 }
 
@@ -78,7 +80,7 @@ RangeData FromProto(const proto::RangeData& proto) {
     }
   }
   return RangeData{transform::ToEigen(proto.origin()), PointCloud(returns),
-                   PointCloud(misses)};
+                   PointCloud(misses), proto.closure_weight_factor()};
 }
 
 }  // namespace sensor

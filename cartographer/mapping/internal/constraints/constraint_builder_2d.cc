@@ -253,8 +253,8 @@ void ConstraintBuilder2D::ComputeConstraint(
   constraint->reset(new Constraint{submap_id,
                                    node_id,
                                    {transform::Embed3D(constraint_transform),
-                                    options_.loop_closure_translation_weight(),
-                                    options_.loop_closure_rotation_weight()},
+                                    options_.loop_closure_translation_weight() * constant_data->closure_weight_factor,
+                                    options_.loop_closure_rotation_weight() * constant_data->closure_weight_factor},
                                    Constraint::INTER_SUBMAP});
 
   if (options_.log_matches()) {
