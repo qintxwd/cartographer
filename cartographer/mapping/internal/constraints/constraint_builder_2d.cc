@@ -192,6 +192,9 @@ void ConstraintBuilder2D::ComputeConstraint(
     const transform::Rigid2d& initial_relative_pose,
     const SubmapScanMatcher& submap_scan_matcher,
     std::unique_ptr<ConstraintBuilder2D::Constraint>* constraint) {
+  if(constant_data->closure_weight_factor<0.1){
+    return;
+  }
   CHECK(submap_scan_matcher.fast_correlative_scan_matcher);
   const transform::Rigid2d initial_pose =
       ComputeSubmapPose(*submap) * initial_relative_pose;
