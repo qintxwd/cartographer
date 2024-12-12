@@ -31,6 +31,8 @@ struct TimedPointCloudData {
   // 'intensities' has to be same size as 'ranges', or empty.
   std::vector<float> intensities;
   double closure_weight_factor = 1.0;
+  // 直线特征
+  std::vector<LineFeature> line_features;
 };
 
 struct TimedPointCloudOriginData {
@@ -43,6 +45,8 @@ struct TimedPointCloudOriginData {
   std::vector<Eigen::Vector3f> origins;
   std::vector<RangeMeasurement> ranges;
   double closure_weight_factor = 1.0;
+  // 直线特征
+  std::vector<LineFeature> line_features;  
 };
 
 // Converts 'timed_point_cloud_data' to a proto::TimedPointCloudData.

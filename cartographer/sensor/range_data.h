@@ -34,6 +34,8 @@ struct RangeData {
   PointCloud returns;
   PointCloud misses;
   double closure_weight_factor = 1.0;
+  // 直线特征
+  std::vector<LineFeature> line_features;
 };
 
 RangeData TransformRangeData(const RangeData& range_data,

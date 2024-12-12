@@ -60,7 +60,8 @@ LocalTrajectoryBuilder2D::TransformToGravityAlignedFrameAndFilter(
       cropped.origin,
       sensor::VoxelFilter(cropped.returns, options_.voxel_filter_size()),
       sensor::VoxelFilter(cropped.misses, options_.voxel_filter_size()),
-      cropped.closure_weight_factor};
+      cropped.closure_weight_factor,
+      cropped.line_features};
 }
 
 std::unique_ptr<transform::Rigid2d> LocalTrajectoryBuilder2D::ScanMatch(
@@ -190,6 +191,9 @@ LocalTrajectoryBuilder2D::AddRangeData(
 
   if (num_accumulated_ >= options_.num_accumulated_range_data()) {
     accumulated_range_data_.closure_weight_factor /= num_accumulated_;
+    // QYHTODO: line_features
+    accumulated_range_data_.line_features = synchronized_data.line_features;
+
     const common::Time current_sensor_time = synchronized_data.time;
     absl::optional<common::Duration> sensor_duration;
     if (last_sensor_time_.has_value()) {
@@ -300,7 +304,8 @@ LocalTrajectoryBuilder2D::InsertIntoSubmap(
           {},  // 'low_resolution_point_cloud' is only used in 3D.
           {},  // 'rotational_scan_matcher_histogram' is only used in 3D.
           pose_estimate,
-          range_data_in_local.closure_weight_factor
+          range_data_in_local.closure_weight_factor,
+          range_data_in_local.line_features
           }),
       std::move(insertion_submaps)});
 }

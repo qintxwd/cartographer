@@ -29,6 +29,12 @@ message TimedRangefinderPoint {
   float time = 2;
 }
 
+//增加直线特征
+message LineFeature {
+  transform.proto.Vector3f start = 1;
+  transform.proto.Vector3f end = 2;
+}
+
 // Compressed collection of a 3D point cloud.
 message CompressedPointCloud {
   int32 num_points = 1;
@@ -43,6 +49,7 @@ message TimedPointCloudData {
   repeated TimedRangefinderPoint point_data = 4;
   repeated float intensities = 5;
   float closure_weight_factor = 6;
+  repeated LineFeature line_features = 7;//增加直线特征
 }
 
 // Proto representation of ::cartographer::sensor::RangeData.
@@ -53,6 +60,7 @@ message RangeData {
   repeated RangefinderPoint returns = 4;
   repeated RangefinderPoint misses = 5;
   float closure_weight_factor = 6;
+  repeated LineFeature line_features = 7;//增加直线特征
 }
 
 // Proto representation of ::cartographer::sensor::ImuData.

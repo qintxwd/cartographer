@@ -62,6 +62,8 @@ struct TrajectoryNode {
     transform::Rigid3d local_pose;
 
     double closure_weight_factor = 1.;
+
+    std::vector<sensor::LineFeature> line_features;
   };
 
   common::Time time() const { return constant_data->time; }

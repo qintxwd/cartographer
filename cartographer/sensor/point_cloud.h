@@ -27,6 +27,12 @@
 
 namespace cartographer {
 namespace sensor {
+  
+// 直线特征
+struct LineFeature {
+  Eigen::Vector3f start;
+  Eigen::Vector3f end;
+};
 
 // Stores 3D positions of points together with some additional data, e.g.
 // intensities.
@@ -118,6 +124,12 @@ TimedPointCloud TransformTimedPointCloud(const TimedPointCloud& point_cloud,
 PointCloud CropPointCloud(const PointCloud& point_cloud, float min_z,
                           float max_z);
 
+LineFeature TransformLineFeature(const LineFeature& line_feature,
+                                 const transform::Rigid3f& transform);
+
+std::vector<LineFeature> TransformLineFeatures(
+    const std::vector<LineFeature>& line_features,
+    const transform::Rigid3f& transform);
 }  // namespace sensor
 }  // namespace cartographer
 

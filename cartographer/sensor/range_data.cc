@@ -28,7 +28,8 @@ RangeData TransformRangeData(const RangeData& range_data,
       transform * range_data.origin,
       TransformPointCloud(range_data.returns, transform),
       TransformPointCloud(range_data.misses, transform),
-      range_data.closure_weight_factor
+      range_data.closure_weight_factor,
+      TransformLineFeatures(range_data.line_features, transform)
   };
 }
 
@@ -36,7 +37,8 @@ RangeData CropRangeData(const RangeData& range_data, const float min_z,
                         const float max_z) {
   return RangeData{range_data.origin,
                    CropPointCloud(range_data.returns, min_z, max_z),
-                   CropPointCloud(range_data.misses, min_z, max_z), range_data.closure_weight_factor};
+                   CropPointCloud(range_data.misses, min_z, max_z), range_data.closure_weight_factor,
+                   range_data.line_features};
 }
 
 proto::RangeData ToProto(const RangeData& range_data) {
@@ -51,6 +53,11 @@ proto::RangeData ToProto(const RangeData& range_data) {
     *proto.add_misses() = ToProto(point);
   }
   proto.set_closure_weight_factor(range_data.closure_weight_factor);
+  for (const LineFeature& line_feature : range_data.line_features) {
+    proto::LineFeature* line_feature_proto = proto.add_line_features();
+    *line_feature_proto->mutable_start() = transform::ToProto(line_feature.start);
+    *line_feature_proto->mutable_end() = transform::ToProto(line_feature.end);
+  }
   return proto;
 }
 
@@ -79,8 +86,13 @@ RangeData FromProto(const proto::RangeData& proto) {
       misses.push_back({transform::ToEigen(point_proto)});
     }
   }
+  std::vector<LineFeature> line_features;
+  for (const auto& line_feature_proto : proto.line_features()) {
+    line_features.push_back({transform::ToEigen(line_feature_proto.start()),
+                             transform::ToEigen(line_feature_proto.end())});
+  }
   return RangeData{transform::ToEigen(proto.origin()), PointCloud(returns),
-                   PointCloud(misses), proto.closure_weight_factor()};
+                   PointCloud(misses), proto.closure_weight_factor(), line_features};
 }
 
 }  // namespace sensor

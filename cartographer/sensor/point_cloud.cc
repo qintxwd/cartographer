@@ -79,6 +79,21 @@ PointCloud CropPointCloud(const PointCloud& point_cloud, const float min_z,
     return min_z <= point.position.z() && point.position.z() <= max_z;
   });
 }
-
+LineFeature TransformLineFeature(const LineFeature& line_feature,
+                                 const transform::Rigid3f& transform)
+{
+  return LineFeature{transform * line_feature.start, transform * line_feature.end};
+}
+std::vector<LineFeature> TransformLineFeatures(
+    const std::vector<LineFeature>& line_features,
+    const transform::Rigid3f& transform)
+{
+  std::vector<LineFeature> transformed_line_features;
+  transformed_line_features.reserve(line_features.size());
+  for (const LineFeature& line_feature : line_features) {
+    transformed_line_features.push_back(TransformLineFeature(line_feature, transform));
+  }
+  return transformed_line_features;
+}
 }  // namespace sensor
 }  // namespace cartographer

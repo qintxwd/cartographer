@@ -46,6 +46,13 @@ proto::TrajectoryNodeData ToProto(const TrajectoryNode::Data& constant_data) {
   }
   *proto.mutable_local_pose() = transform::ToProto(constant_data.local_pose);
 
+  //   line features
+  for (const auto& line_feature : constant_data.line_features) {
+    cartographer::sensor::proto::LineFeature* line_feature_proto = proto.add_line_features();
+    *line_feature_proto->mutable_start() = transform::ToProto(line_feature.start);
+    *line_feature_proto->mutable_end() = transform::ToProto(line_feature.end);
+  }
+
   proto.set_closure_weight_factor(constant_data.closure_weight_factor);
   return proto;
 }
@@ -57,6 +64,11 @@ TrajectoryNode::Data FromProto(const proto::TrajectoryNodeData& proto) {
     rotational_scan_matcher_histogram(i) =
         proto.rotational_scan_matcher_histogram(i);
   }
+  std::vector<sensor::LineFeature> line_features;
+    for (const auto& line_feature_proto : proto.line_features()) {
+        line_features.push_back({transform::ToEigen(line_feature_proto.start()),
+                                    transform::ToEigen(line_feature_proto.end())});
+    }
   return TrajectoryNode::Data{
       common::FromUniversal(proto.timestamp()),
       transform::ToEigen(proto.gravity_alignment()),
@@ -68,7 +80,8 @@ TrajectoryNode::Data FromProto(const proto::TrajectoryNodeData& proto) {
           .Decompress(),
       rotational_scan_matcher_histogram,
       transform::ToRigid3(proto.local_pose()),
-        proto.closure_weight_factor()};
+        proto.closure_weight_factor(),
+        line_features};
 }
 
 }  // namespace mapping

@@ -35,6 +35,11 @@ proto::TimedPointCloudData ToProto(
     proto.add_intensities(intensity);
   }
   proto.set_closure_weight_factor(timed_point_cloud_data.closure_weight_factor);
+  for (const LineFeature& line_feature : timed_point_cloud_data.line_features) {
+    proto::LineFeature* line_feature_proto = proto.add_line_features();
+    *line_feature_proto->mutable_start() = transform::ToProto(line_feature.start);
+    *line_feature_proto->mutable_end() = transform::ToProto(line_feature.end);
+  }
   return proto;
 }
 
@@ -54,12 +59,18 @@ TimedPointCloudData FromProto(const proto::TimedPointCloudData& proto) {
       timed_point_cloud.push_back({timed_point.head<3>(), timed_point[3]});
     }
   }
+  std::vector<LineFeature> line_features;
+  for (const auto& line_feature_proto : proto.line_features()) {
+    line_features.push_back({transform::ToEigen(line_feature_proto.start()),
+                             transform::ToEigen(line_feature_proto.end())});
+  }
   return TimedPointCloudData{common::FromUniversal(proto.timestamp()),
                              transform::ToEigen(proto.origin()),
                              timed_point_cloud,
                              std::vector<float>(proto.intensities().begin(),
                                                 proto.intensities().end()),
-                              proto.closure_weight_factor()};
+                              proto.closure_weight_factor(),
+                              line_features};
 }
 
 }  // namespace sensor

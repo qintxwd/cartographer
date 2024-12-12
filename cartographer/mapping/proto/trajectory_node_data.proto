@@ -30,4 +30,5 @@ message TrajectoryNodeData {
   repeated float rotational_scan_matcher_histogram = 6;
   transform.proto.Rigid3d local_pose = 7;
   float closure_weight_factor = 8;
+  repeated sensor.proto.LineFeature line_features = 9;
 }
